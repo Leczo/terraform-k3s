@@ -1,0 +1,27 @@
+---
+# Import common playbook to install core item
+- import_playbook: common.yml
+  vars:
+    hostlist:
+      - bastion
+      - workers
+
+# Prepare hostgroup for specific role
+- hosts:
+    - bastion
+  become: yes
+  roles:
+    - role: k3s
+
+- hosts:
+    - workers
+  strategy: free
+  become: yes
+  roles:
+    - role: k3s
+  post_tasks:
+    - name: Remove temporary "/tmp/fetched_token" file
+      file:
+        path: "/tmp/fetched_token"
+        state: absent
+      run_once: true

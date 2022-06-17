@@ -1,0 +1,21 @@
+---
+
+- name: Install core apps Debian family 
+  ansible.builtin.apt:
+    update-cache: yes
+    state: present
+    name: '{{ core_apps_debian }}'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Enable epel repo
+  ansible.builtin.command: yum-config-manager --enable epel
+  when: ansible_os_family == 'RedHat'
+
+
+- name: Install core apps RedHat family
+  ansible.builtin.yum:
+    state: present
+    name: '{{ core_apps_redhat }}'
+  when: ansible_os_family == 'RedHat'
+
+

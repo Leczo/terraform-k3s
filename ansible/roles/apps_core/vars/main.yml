@@ -1,0 +1,23 @@
+---
+core_apps_debian:
+  - apt-transport-https
+  - bash-completion
+  - curl
+  - gnupg
+  - htop
+  - less
+  - ncdu
+  - netcat
+  - rsync
+  - wget
+  - jq
+  - vim
+
+core_apps_redhat:
+  - bash-completion
+  - curl
+  - gnupg
+  - htop
+  - less
+  - wget
+  - vim

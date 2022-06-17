@@ -1,0 +1,7 @@
+---
+  - hosts: "{{ hostlist }}"
+     # use non linear strategy to speed up execution
+    strategy: free
+    roles:
+      - role: apps_core
+    become: yes

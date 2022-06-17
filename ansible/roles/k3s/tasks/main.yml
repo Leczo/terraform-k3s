@@ -1,0 +1,35 @@
+---
+# tasks file for k3s
+- name: Download and install k3s control plane node
+  ansible.builtin.shell: sudo curl -sfL https://get.k3s.io | sh -
+  when: "'bastion' in group_names"
+
+- name: Control node initial setup
+  block:
+    - name: Fetch kubeconfig
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /tmp/kubeconfig
+      when: "'bastion' in group_names"
+
+    - name: Fetch token
+      ansible.builtin.fetch:
+        src: /var/lib/rancher/k3s/server/node-token
+        dest: /tmp/fetched_token
+  run_once: true
+  when: "'bastion' in group_names"
+
+- name: Deploy worker nodes
+  block:
+    - name: Wait until first control node deployment is finished
+      wait_for:
+        path: "/tmp/fetched_token"
+        delay: 10
+        timeout: 240
+        state: present
+        msg: "FILE is not present"
+
+    - name: Download and install k3s worker nodes
+      ansible.builtin.shell: "curl -sfL https://get.k3s.io | K3S_URL=https://{{ control_plane_ip }}:6443 K3S_TOKEN={{ nodetoken['content'] | b64decode }} sh -"
+
+  when: "'bastion' not in group_names"

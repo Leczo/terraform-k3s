@@ -1,0 +1,9 @@
+[bastion]
+3.123.145.246
+[workers]
+10.0.0.217
+10.0.2.206
+10.0.7.44
+
+[workers:vars]
+ansible_ssh_common_args='-o ProxyCommand="ssh -i ~/.ssh/main_aws.pem -p 22 -W %h:%p ec2-user@3.123.145.246"'
