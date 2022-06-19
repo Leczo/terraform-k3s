@@ -7,8 +7,9 @@ locals {
   subnet_id         = module.network.subnet-id
   nodes_private_ips = module.ec2.nodes_private_ips
   # Path to predefined ssh public and private key
-  private_key       = file(var.private_key_path)
-  public_key        = file(var.public_key_path)
+  private_key       = file("~/.ssh/main_aws.pem")
+  public_key        = file("~/.ssh/main_aws.pub")
+  workers           = 2
 
 }
 
@@ -26,7 +27,7 @@ module "ec2" {
   source              = "./modules/ec2"
   key-name            = aws_key_pair.ssh-key.key_name
   subnet-id           = local.subnet_id
-  worker-nodes-number = 3
+  worker-nodes-number = local.workers
 
 }
 
