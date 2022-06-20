@@ -96,12 +96,42 @@ resource "aws_default_security_group" "sg" {
     to_port     = 6443
   }
 
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    protocol    = "tcp"
+    self        = true
+    from_port   = 10250
+    to_port     = 10250
+  }
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    protocol    = "tcp"
+    self        = true
+    from_port   = 2379
+    to_port     = 2380
+  }
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    protocol    = "udp"
+    self        = true
+    from_port   = 8472
+    to_port     = 8472
+  }
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    protocol    = "udp"
+    self        = true
+    from_port   = 51820
+    to_port     = 51821
+  }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+
   }
 
   tags = {
