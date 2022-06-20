@@ -3,18 +3,19 @@ provider "null" {}
 
 
 locals {
-  bastion_ip        = module.ec2.bastion_ip[0]
-  subnet_id         = module.network.subnet-id
-  nodes_private_ips = module.ec2.nodes_private_ips
+  bastion_ip         = module.ec2.bastion_ip[0]
+  bastion_private_ip = module.ec2.bastion_private_ip
+  subnet_id          = module.network.subnet-id
+  nodes_private_ips  = module.ec2.nodes_private_ips
   # Path to predefined ssh public and private key
-  private_key       = file("~/.ssh/main_aws.pem")
-  public_key        = file("~/.ssh/main_aws.pub")
-  workers           = 2
+  private_key = file("~/.ssh/main_aws.pem")
+  public_key  = file("~/.ssh/main_aws.pub")
+  workers     = 1
 
 }
 
 resource "aws_key_pair" "ssh-key" {
-  key_name = "ssh-key"
+  key_name   = "ssh-key"
   public_key = local.public_key
 }
 
@@ -54,7 +55,8 @@ resource "null_resource" "bastion_check" {
       for i in ${join(" ", local.nodes_private_ips)};do echo $i >> ./inventory/hosts; done 
       echo -en '\n[workers:vars]\n' >> ./inventory/hosts 
       echo $'ansible_ssh_common_args=\'-o ProxyCommand="ssh -i ~/.ssh/main_aws.pem -p 22 -W %h:%p ec2-user@${local.bastion_ip}"\'' >> ./inventory/hosts
-      echo  "control_plane_ip: ${local.bastion_ip}" > ./roles/k3s/vars/main.yml
+      echo  "control_plane_ip: ${local.bastion_private_ip}" > ./roles/k3s/vars/main.yml
+      export AWS_BASTION=${local.bastion_ip}
       EOT
   }
 

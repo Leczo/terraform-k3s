@@ -4,7 +4,7 @@ output "bastion_ip" {
 }
 
 output "bastion_private_ip" {
-  value = aws_instance.bastion.*.private_ip
+  value = aws_instance.bastion[0].private_ip
 }
 
 output "nodes_private_ips" {

@@ -1,4 +1,5 @@
 resource "aws_instance" "bastion" {
+  count         = 1
   ami           = "ami-09439f09c55136ecf"
   instance_type = "t2.micro"
   subnet_id     = var.subnet-id
@@ -10,13 +11,13 @@ resource "aws_instance" "bastion" {
 }
 
 resource "aws_eip_association" "eip_assoc" {
-  instance_id   = aws_instance.bastion.id
+  instance_id   = aws_instance.bastion[0].id
   allocation_id = aws_eip.eip-main.id
 }
 
 resource "aws_eip" "eip-main" {
   vpc              = true
-  instance         = aws_instance.bastion.id
+  instance         = aws_instance.bastion[0].id
   public_ipv4_pool = "amazon"
 
 }
