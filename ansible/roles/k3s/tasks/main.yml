@@ -9,6 +9,7 @@
       ansible.builtin.fetch:
         src: /etc/rancher/k3s/k3s.yaml
         dest: ../../kubeconfig
+        flat: yes
       when: "'bastion' in group_names"
 
     - name: Load token content

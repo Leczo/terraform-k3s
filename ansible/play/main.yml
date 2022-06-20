@@ -23,12 +23,8 @@
     - workers
   strategy: free
   become: yes
-  vars:
-    control_plane_ip: 10.0.7.118
   tasks:
     - set_fact:
         nodetoken: "{{ hostvars.DUMMY_HOST.nodetoken }}"
     - include_role:
         name: k3s
-    # nodetoken is passed as fact to playbook
-    # when: "'workers' in group_names"
