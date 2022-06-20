@@ -6,22 +6,29 @@
       - bastion
       - workers
 
-# Prepare hostgroup for specific role
-- hosts:
-    - bastion
+# Prepare control nodes
+- hosts: bastion
   become: yes
+  strategy: linear
   roles:
     - role: k3s
+  tasks:
+    - name: Save variable to dummy host
+      add_host:
+        name: "DUMMY_HOST"
+        nodetoken: "{{ token['content'] }}"
 
+# Prepare worker nodes
 - hosts:
     - workers
   strategy: free
   become: yes
-  roles:
-    - role: k3s
-  post_tasks:
-    - name: Remove temporary "/tmp/fetched_token" file
-      file:
-        path: "/tmp/fetched_token"
-        state: absent
-      run_once: true
+  vars:
+    control_plane_ip: 10.0.7.118
+  tasks:
+    - set_fact:
+        nodetoken: "{{ hostvars.DUMMY_HOST.nodetoken }}"
+    - include_role:
+        name: k3s
+    # nodetoken is passed as fact to playbook
+    # when: "'workers' in group_names"
