@@ -25,6 +25,6 @@
   become: yes
   tasks:
     - set_fact:
-        nodetoken: "{{ hostvars.DUMMY_HOST.nodetoken }}"
+        nodetoken: "{{ hostvars.DUMMY_HOST.nodetoken | b64decode }}"
     - include_role:
         name: k3s

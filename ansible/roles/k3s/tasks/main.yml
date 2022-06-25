@@ -8,7 +8,7 @@
     - name: Fetch kubeconfig
       ansible.builtin.fetch:
         src: /etc/rancher/k3s/k3s.yaml
-        dest: ../../kubeconfig
+        dest: ../../kubeconfig/
         flat: yes
       when: "'bastion' in group_names"
 
@@ -23,14 +23,16 @@
 
 - name: Setup worker node
   block:
-    - set_fact:
-        k3s_agent_command:  K3S_URL=https://{{ control_plane_ip }}:6443 K3S_TOKEN={{ nodetoken | b64decode }} sh  bootstrap.sh
-          
-    - name: Download k3s bootstrap script
-      ansible.builtin.shell: curl -sfL https://get.k3s.io >> bootstrap.sh 
 
-    - name: Install k3s worker nodes
-      ansible.builtin.shell: sudo {{ k3s_agent_command }}
-      # args:
-      #   executable: /bin/bash
+    - name: Download k3s bootstrap script
+      ansible.builtin.shell: |
+                     #  echo K3S_URL=https://{{ control_plane_ip }}:6443 > bootstrap.sh
+                     #  echo K3S_TOKEN={{ nodetoken }} >> bootstrap.sh
+                     export K3S_URL=https://{{ control_plane_ip }}:6443 
+                     export K3S_TOKEN={{ nodetoken }}
+                     curl -sfL https://get.k3s.io >> bootstrap.sh
+                     . bootstrap.sh
+      become_user: root 
+
+        
   when: "'workers' in group_names"
