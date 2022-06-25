@@ -7,10 +7,11 @@ locals {
   bastion_private_ip = module.ec2.bastion_private_ip
   subnet_id          = module.network.subnet-id
   nodes_private_ips  = module.ec2.nodes_private_ips
-  # Path to predefined ssh public and private key
-  private_key = file("~/.ssh/main_aws.pem")
-  public_key  = file("~/.ssh/main_aws.pub")
-  workers     = 1
+  public_key_path    = "~/.ssh/main_aws.pub"
+  private_key_path   = "~/.ssh/main_aws.pem"
+  private_key        = file(local.private_key_path)
+  public_key         = file(local.public_key_path)
+  workers            = 3
 
 }
 
@@ -33,7 +34,7 @@ module "ec2" {
 }
 
 
-resource "null_resource" "bastion_check" {
+resource "null_resource" "k3s_setup" {
   provisioner "remote-exec" {
     inline = ["echo Done!"]
 
@@ -63,7 +64,15 @@ resource "null_resource" "bastion_check" {
   provisioner "local-exec" {
     working_dir = "./ansible"
     interpreter = ["/bin/bash", "-c"]
-    command     = "ansible-playbook ./play/main.yml"
+    command     = "ansible-playbook -vv ./play/main.yml"
+
+  }
+
+  provisioner "local-exec" {
+    working_dir = "."
+    interpreter = ["/bin/bash", "-c"]
+    command     = "echo -en 'Host aws_bastion\n   User ec2-user\n   HostName ${local.bastion_ip}\n   IdentityFile ${local.private_key_path}\n   LocalForward 127.0.0.1:6443 ${local.bastion_private_ip}:6443' > ssh_config"
+
 
   }
 }
